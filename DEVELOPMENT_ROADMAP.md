@@ -1,248 +1,284 @@
-# UCF-11 Development Roadmap: Python (Future) + C++ (Proven) + Verilog (Hardware)
+# UCF-11 Multi-Layer Architecture
 
-## Language/Domain Separation Strategy
+This repository now follows a clean three-layer design model to preserve separation of responsibilities and avoid overlap between mathematical exploration, physical validation, and hardware realization.
 
-This repository uses a deliberate **tri-layer architecture** to prevent overlap and clarify intent:
+## 1) Python Layer: Future / Exploration / Prediction
+Purpose:
+- model high-dimensional manifold behavior
+- generate candidate geometry states
+- stress-test fractal boundaries
+- optimize pin formations and coordinate layouts
+- provide a reference model for future hardware validation
 
-- **C++ (Proven/Foundation)**: Hardware-native implementations, fixed-point arithmetic, real ARM icosahedral sensor processing, validated manifold measurements
-- **Python (Future/Exploration)**: Predictive models, stress-test frameworks, boundary analysis, optimization studies, community contribution pipeline
-- **Verilog (Hardware)**: Fractal core validation layer, Fibonacci clock management, RTL synthesis targets
+This layer does not implement the embedded system. It explores the geometry and produces test vectors, boundary maps, and candidate routes.
 
----
+## 2) C++ Layer: Proven / Real-World / Physical Lock
+Purpose:
+- validate against real or synthetic ADC/physical manifold data
+- compute residual drift against the icosahedral manifold
+- execute fixed-point Q16.16 arithmetic in hardware-like conditions
+- provide the reliable physical baseline for locking and drift analysis
 
-## Layer 1: C++ (Where We've Been)
+This layer is the embedded/manifold-lock truth model.
 
-### Purpose
-Production-grade, hardware-ready code that validates the icosahedral manifold against real or simulated sensor data. This is the **proven baseline**.
+## 3) Verilog Layer: Hardware / Fractal Core / RTL
+Purpose:
+- realize the fractal core in hardware
+- implement Fibonacci-gated stepping
+- evaluate bounded vs escape regions
+- synthesize a hardware-validated manifold decision path
 
-### Key Components
-1. **Fixed-Point Q16.16 Arithmetic**
-   - Pre-computed icosahedral node manifold (12 vertices)
-   - Golden-rectangle geometry hardcoded as integer registers
-   - Zero floating-point operations
-
-2. **ARM Icosahedral Lock Processing**
-   - Direct ADC channel-to-manifold projection
-   - Residual drift computation
-   - Integer accumulation and bit-shift recovery
-
-3. **Manifold Validation**
-   - Returns error magnitude when physical system drifts
-   - Zero error represents perfect geometric lock
-   - Designed for real-time embedded execution
-
-### Code Location
-```
-ucf11-framework/
-├── arm_icosahedral_processor.cpp  (Core manifold validation)
-├── icosahedral_manifold.h          (12-node geometry table)
-└── fixed_point_utils.h             (Q16.16 arithmetic)
-```
-
-### Validation Strategy
-- Unit tests on synthetic ADC streams
-- Convergence tests on known geometric patterns
-- Hardware timing profiling
-- Real sensor integration (when available)
+This layer is the implementation target for the mathematical boundary evaluation.
 
 ---
 
-## Layer 2: Python (Where We're Going)
+# Repository Structure
 
-### Purpose
-Exploration, prediction, and optimization layer. Python drives the research questions without worrying about hardware constraints. This is the **innovation sandbox**.
-
-### Key Components
-
-#### 1. **Fractal Boundary Analyzer**
-```python
-class MandelbrotManifoldAnalyzer:
-    - Compute high-precision reference boundaries
-    - Identify Q16.16 truncation error zones
-    - Characterize escape/bounded transition regions
-    - Generate synthetic test vectors for hardware validation
-```
-
-#### 2. **Icosahedral Geometry Predictor**
-```python
-class IcosahedralDriftPredictor:
-    - Model physical deviation from ideal manifold
-    - Predict residual error magnitude for a given ADC stream
-    - Optimize sensor placement for maximum stability
-    - Simulate multi-axis coupling effects
-```
-
-#### 3. **Fibonacci Pulse Scheduler**
-```python
-class FibonacciClockAnalyzer:
-    - Model non-uniform iteration timing
-    - Predict convergence speed under Fibonacci gating
-    - Compare against uniform clock schedules
-    - Optimize pulse parameters for different manifold regions
-```
-
-#### 4. **Integration Test Framework**
-```python
-class ManifoldIntegrationTest:
-    - Feed fractal core outputs into icosahedral processor model
-    - Compare mathematical escape against physical drift
-    - Validate synchronization across both domains
-    - Generate stress-test scenarios for hardware deployment
-```
-
-#### 5. **Pin Formation Validator**
-```python
-class PinFormationGeometry:
-    - Map icosahedral nodes to pin routing targets
-    - Check which formations remain within valid manifold
-    - Predict which formations will escape under load
-    - Optimize routing for stability
-```
-
-### Code Location
-```
+```text
 ucf11-framework/
+├── README.md
+├── DEVELOPMENT_ROADMAP.md
+├── DESIGN_NOTES.md
+├── ucf11_top_fractal_core.v
+├── cpp/
+│   ├── arm_icosahedral_processor.cpp
+│   ├── fixed_point_utils.h
+│   ├── icosahedral_manifold.h
+│   └── tests/
+│       └── test_icosahedral_lock.cpp
 ├── python/
-│   ├── mandelbrot_analyzer.py
-│   ├── icosahedral_predictor.py
-│   ├── fibonacci_scheduler.py
-│   ├── integration_tests.py
+│   ├── __init__.py
+│   ├── manifold_optimizer.py
+│   ├── fractal_reference_model.py
+│   ├── boundary_generator.py
 │   ├── pin_formation_validator.py
-│   └── requirements.txt
-└── python/tests/
-    ├── test_boundary_accuracy.py
-    ├── test_drift_prediction.py
-    ├── test_fibonacci_timing.py
-    └── test_pin_formations.py
-```
-
-### Exploration Strategy
-- High-precision floating-point Mandelbrot computation
-- Sensitivity analysis on Q16.16 truncation
-- Optimization sweeps for manifold parameters
-- Predictive modeling of edge cases
-- Community contributions (no hardware expertise required)
-
----
-
-## Layer 3: Verilog (The Hardware)
-
-### Purpose
-RTL implementation of the fractal core validation layer, directly informed by Python analysis and proven against C++ baseline.
-
-### Components
-- `ucf11_fibonacci_prime_clock_manager.v`
-- `ucf11_top_fractal_core.v`
-- Supporting clock/reset/control logic
-
-### Validation Flow
-1. Python boundary analyzer generates test vectors
-2. Verilog core is simulated with those vectors
-3. Results are compared against C++ reference implementation
-4. Timing and fixed-point behavior are validated
-5. Ready for synthesis and hardware deployment
-
----
-
-## Information Flow (No Overlap)
-
-```
-Python (Future/Exploration)
-  └─ High-precision Mandelbrot analysis
-  └─ Boundary characterization
-  └─ Stress-test generation
-  └─ Pin formation optimization
-  └─ Generates: test vectors, boundary maps, predictions
-       ↓
-Verilog (Hardware Validation)
-  └─ Implements fractal core
-  └─ Takes test vectors from Python
-  └─ Produces: escape/bounded flags, iteration counts
-       ↓
-C++ (Proven/Embedded)
-  └─ Icosahedral manifold lock processing
-  └─ ADC sensor fusion
-  └─ Real-time residual error computation
-  └─ Validates that physical system matches mathematical manifold
-       ↓
-Integration (Python Test Framework)
-  └─ Ties all three layers together
-  └─ Verifies: fractal escape correlates with physical drift
-  └─ Confirms: Fibonacci timing keeps both systems synchronized
+│   ├── fibonacci_scheduler.py
+│   ├── integration_test_driver.py
+│   └── tests/
+│       ├── test_boundary_accuracy.py
+│       ├── test_drift_prediction.py
+│       ├── test_fibonacci_timing.py
+│       └── test_pin_formations.py
+├── verilog/
+│   ├── ucf11_fibonacci_prime_clock_manager.v
+│   ├── ucf11_top_fractal_core.v
+│   └── tests/
+│       └── fractal_core_tb.v
+├── tests/
+│   └── integration/
+│       ├── test_manifold_lock.py
+│       ├── test_pipeline_consistency.py
+│       └── test_boundary_vs_drift.py
+└── docs/
+    └── architecture_overview.md
 ```
 
 ---
 
-## Concrete Deliverables
+# Python Layer Specification
 
-### C++ (Already Exists / Being Validated)
-- [x] Fixed-point Q16.16 icosahedral processor
-- [x] 12-node manifold hardcoded as integer registers
-- [x] Residual drift computation
-- [ ] Unit tests and hardware profiling
-- [ ] Real sensor integration (future)
+## manifold_optimizer.py
+This is the geometry exploration engine.
 
-### Python (To Be Created)
-- [ ] High-precision Mandelbrot reference implementation
-- [ ] Boundary analyzer (escape/bounded transition mapping)
-- [ ] Q16.16 truncation error characterization
-- [ ] Fractal test-vector generator
-- [ ] Icosahedral geometry predictor
-- [ ] Fibonacci timing analyzer
-- [ ] Integration test framework
-- [ ] Pin formation validation tools
-- [ ] Documentation and examples
+Responsibilities:
+- initialize high-dimensional candidate nodes
+- apply dimensionally-aware regularization
+- optimize geometry toward a stable manifold
+- generate candidate layouts for pin formations
+- produce highly structured output ready for downstream validation
 
-### Verilog (Existing / To Be Validated)
-- [x] Fractal core state machine
-- [x] Fibonacci clock manager
-- [ ] Comprehensive simulation testbenches
-- [ ] Timing validation against Python predictions
-- [ ] Synthesis reports and area/power estimates
+Recommended functions:
+- `initialize_nodes(n_nodes, n_dimensions)`
+- `compute_pairwise_distances(nodes)`
+- `soften_distances(distances, softening)`
+- `optimize_geometry(steps)`
+- `export_candidate_layout(path)`
 
-### Integration Tests (Python-Driven)
-- [ ] Compare Verilog fractal output to Python reference
-- [ ] Verify Fibonacci pulse synchronization
-- [ ] Validate Q16.16 scaling does not cause boundary bias
-- [ ] Stress-test edge cases and manifold transitions
-- [ ] Generate hardware validation report
+## fractal_reference_model.py
+This is the mathematical reference model.
+
+Responsibilities:
+- compute high-precision Mandelbrot-style boundary conditions
+- mark bounded vs escape regions
+- generate synthetic coordinate vectors for hardware validation
+- compare Q16.16 truncation errors against high-precision math
+
+Recommended functions:
+- `mandelbrot_escape(c_r, c_i, max_iter, escape_threshold)`
+- `generate_reference_grid(x_range, y_range, samples)`
+- `compare_q16q_precision(reference, q_fixed)`
+
+## boundary_generator.py
+This generates the test vectors that the Verilog core must consume.
+
+Responsibilities:
+- create complex coordinate seeds near the boundary
+- produce bounded/escape edge cases
+- stress the threshold region
+- generate deterministic test sets for reproducible hardware validation
+
+Recommended functions:
+- `generate_boundary_vectors(center, span, samples)`
+- `generate_escape_cases(count)`
+- `generate_bounded_cases(count)`
+
+## pin_formation_validator.py
+This applies the manifold logic to candidate pin formations.
+
+Responsibilities:
+- map candidate node layouts to routing or pin arrangements
+- identify which formations remain bounded
+- reject unstable formations
+- estimate which icosahedral-like layouts are physically valid
+
+Recommended functions:
+- `validate_pin_layout(layout)`
+- `rank_formations(formations)`
+- `export_valid_layouts(layouts)`
+
+## fibonacci_scheduler.py
+This models the non-uniform pulse schedule.
+
+Responsibilities:
+- analyze Fibonacci pulse timing
+- predict iteration pacing across valid and invalid regions
+- compare uniform-vs-Fibonacci stepping
+- supply scheduling parameters to the Verilog design
+
+Recommended functions:
+- `generate_fibonacci_sequence(limit)`
+- `simulate_timing(schedule, iterations)`
+- `compare_step_efficiency()`
+
+## integration_test_driver.py
+This is the orchestrator for full pipeline validation.
+
+Responsibilities:
+- generate candidate geometric states
+- feed them to the fractal reference model
+- feed them to the Verilog testbench or hardware simulation
+- compare hardware outputs to Python reference
+- pass physical drift outputs through the C++ manifold lock model
+
+Recommended functions:
+- `run_reference_suite()`
+- `run_verilog_suite()`
+- `run_cpp_suite()`
+- `generate_report()`
 
 ---
 
-## Why This Structure Works
+# C++ Layer Specification
 
-| Aspect | C++ | Python | Verilog |
-|--------|-----|--------|---------|
-| **Precision** | Q16.16 fixed | Arbitrary float | Q16.16 fixed |
-| **Speed** | Real-time embedded | Research/exploration | Synthesized hardware |
-| **Domain** | Physical manifold lock | Mathematical analysis | Fractal validation |
-| **Contributor Barrier** | Medium (embedded C++) | Low (data science) | High (RTL expertise) |
-| **Purpose** | Proven baseline | Innovation sandbox | Hardware implementation |
+## fixed_point_utils.h
+Purpose:
+- define Q16.16 integer arithmetic helpers
+- safe multiply operations for fixed-point values
+- conversion helpers between integer and normalized values
 
-**No overlap** because:
-- C++ handles real-world physics (icosahedral sensor lock)
-- Python handles mathematical exploration (fractal analysis, predictions)
-- Verilog handles hardware validation (fractal core RTL)
-- Each layer feeds the next without duplication
+Example API:
+- `q16_from_int32(value)`
+- `q16_multiply(a, b)`
+- `q16_shift_right(value, shift)`
+- `q16_abs(value)`
+
+## icosahedral_manifold.h
+Purpose:
+- define the 12-node manifold table
+- hardcode the icosahedral geometry in fixed-point integer form
+- provide a direct mapping from ADC channels to manifold coordinates
+
+## arm_icosahedral_processor.cpp
+Purpose:
+- compute residual drift for the current physical state
+- interpret ADC inputs against the ideal manifold
+- return zero when aligned or drift magnitude when unstable
+
+Suggested API:
+- `int32_t process_arm_icosahedral_channels(const int16_t* raw_adc_voltages);`
+
+This is the real-world physical lock baseline.
 
 ---
 
-## Community Contribution Path
+# Verilog Layer Specification
 
-1. **For Algorithm Researchers**: Contribute Python boundary analyzers and fractal optimizations
-2. **For Robotics Engineers**: Contribute C++ sensor fusion and manifold-lock improvements
-3. **For Hardware Engineers**: Contribute Verilog optimizations and synthesis validation
-4. **For Integration Teams**: Contribute Python test frameworks that tie all three layers together
+## ucf11_fibonacci_prime_clock_manager.v
+Purpose:
+- generate the Fibonacci-driven pulse gate
+- freeze pulse generation when `system_fracture` is asserted
 
-Each contributor works in their domain without needing deep expertise in the others.
+## ucf11_top_fractal_core.v
+Purpose:
+- iterate the Mandelbrot-style recurrence
+- gate iteration on Fibonacci pulses
+- evaluate bounded vs escape state
+- produce `manifold_bounded` and `manifold_escape`
+
+This module is the hardware implementation of the mathematical validity boundary.
 
 ---
 
-## Next Steps
+# Integration Strategy
 
-1. Create `/python` directory structure
-2. Implement high-precision Mandelbrot reference model
-3. Generate test vectors and boundary maps
-4. Validate Verilog against Python predictions
-5. Add integration tests that correlate fractal escape with icosahedral drift
-6. Open for community review and optimization
+## Step 1: Build Python reference and candidate geometry generators
+- Develop the exact high-precision fractal and manifold reference model
+- Generate bounded, escape, and threshold-close test cases
+- Feed these into the Verilog simulation pipeline
+
+## Step 2: Validate Verilog against Python boundary reference
+- For each generated coordinate, check:
+  - is the fractal core bounded or escape?
+  - does it match the Python reference?
+- Evaluate off-by-one and Q16.16 threshold drift
+
+## Step 3: Validate C++ physical lock against the same input classes
+- Feed synthetic ADC values representing stable vs unstable physical positions
+- Confirm the residual drift correlates with the fractal classification
+
+## Step 4: Build full integration harness
+- Python generates candidate layouts and coordinate sets
+- Verilog validates the mathematical valid manifold
+- C++ validates the physical manifold lock
+- Integration tests determine whether the system is truly stable or if it has crossed the boundary
+
+---
+
+# Validation Matrix
+
+| Function | Python | C++ | Verilog |
+|----------|--------|-----|---------|
+| High-precision fractal boundary | Yes | No | No |
+| Q16.16 fixed-point manifold lock | No | Yes | Yes |
+| Candidate geometry exploration | Yes | No | No |
+| Physical ADC drift measurement | No | Yes | No |
+| Hardware escape/bounded decision | Reference only | No | Yes |
+| Integration validation | Yes | Yes | Yes |
+
+This matrix preserves separation while allowing full-system validation.
+
+---
+
+# Philosophy: No Overlap
+
+The architecture intentionally avoids overlap:
+- Python is for discovery and prediction
+- C++ is for physical real-world validation
+- Verilog is for hardware implementation
+
+No single layer tries to do all three jobs.
+
+This preserves clarity, keeps the repo maintainable, and creates a clean pipeline for future contributors.
+
+---
+
+# Recommended Next Actions
+
+1. Create `python/` directory and populate the reference models
+2. Implement Python generation of boundary test vectors
+3. Create a minimal `integration_test_driver.py` to orchestrate validation
+4. Ensure Verilog outputs match the Python reference expectations
+5. Ensure C++ residual drift matches physical manifold assumptions
+6. Run an end-to-end pipeline check across all three layers
+
+This is the proper path for turning the architecture into a reviewable, testable, and extensible system.
