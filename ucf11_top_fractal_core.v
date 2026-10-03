@@ -21,7 +21,7 @@ module ucf11_top_fractal_core #(
 
     // Internal interconnect wire linking the clock pulse to the sequencer
     wire fib_pulse_gate;
-    
+
     // Registered output flags to avoid combinational loop
     reg manifold_escape_r;
     reg manifold_bounded_r;
@@ -45,7 +45,7 @@ module ucf11_top_fractal_core #(
     // =========================================================================
     // Modulating the original core logic so that its internal processing states
     // are synchronously stepped ONLY when the fib_pulse_gate is active.
-    
+
     reg signed [BIT_WIDTH-1:0] z_r;
     reg signed [BIT_WIDTH-1:0] z_i;
     reg [7:0]                  iteration_count;
@@ -91,7 +91,7 @@ module ucf11_top_fractal_core #(
                 end
 
                 S_ITERATE: begin
-                    // THE CORE LINK: The fractal math only steps if the Fibonacci manager says GO
+                    // Use Fibonacci pulse to advance fractal iterations only when enabled.
                     if (fib_pulse_gate) begin
                         iteration_count <= iteration_count + 1'b1;
                         z_r <= (z_r_sq_trunc - z_i_sq_trunc) + coordinate_c_r;
@@ -104,12 +104,12 @@ module ucf11_top_fractal_core #(
                 end
 
                 S_EVALUATE: begin
-                    // Evaluation: Register the final state based on convergence/escape
+                    // Register the final classification at the boundary before returning idle.
                     manifold_escape_r  <= (magnitude_sq > ESCAPE_THRESHOLD);
                     manifold_bounded_r <= (iteration_count >= MAX_ITERATIONS) && (magnitude_sq <= ESCAPE_THRESHOLD);
                     state <= S_IDLE;
                 end
-                
+
                 default: state <= S_IDLE;
             endcase
         end
