@@ -21,6 +21,10 @@ module ucf11_top_fractal_core #(
 
     // Internal interconnect wire linking the clock pulse to the sequencer
     wire fib_pulse_gate;
+    
+    // Registered output flags to avoid combinational loop
+    reg manifold_escape_r;
+    reg manifold_bounded_r;
 
     // =========================================================================
     // INSTANTIATION: NON-LINEAR FIBONACCI CLOCK MANAGER
@@ -32,8 +36,8 @@ module ucf11_top_fractal_core #(
     ) clock_manager_inst (
         .clk(clk),
         .rst_n(rst_n),
-        .system_fracture(manifold_escape), // Feedback loop: Freeze clocking if system escapes
-        .fib_clk_en(fib_pulse_gate)       // Output pulse feeding the sequencer
+        .system_fracture(manifold_escape_r), // Feedback loop: Freeze clocking if system escapes
+        .fib_clk_en(fib_pulse_gate)          // Output pulse feeding the sequencer
     );
 
     // =========================================================================
@@ -71,9 +75,13 @@ module ucf11_top_fractal_core #(
             z_i              <= {BIT_WIDTH{1'b0}};
             iteration_count  <= 8'd0;
             state            <= S_IDLE;
+            manifold_escape_r  <= 1'b0;
+            manifold_bounded_r <= 1'b0;
         end else begin
             case (state)
                 S_IDLE: begin
+                    manifold_escape_r  <= 1'b0;
+                    manifold_bounded_r <= 1'b0;
                     if (vector_valid) begin
                         z_r             <= 32'h0000_0000;
                         z_i             <= 32'h0000_0000;
@@ -96,7 +104,9 @@ module ucf11_top_fractal_core #(
                 end
 
                 S_EVALUATE: begin
-                    // Evaluation completes instantly on the next standard clock edge
+                    // Evaluation: Register the final state based on convergence/escape
+                    manifold_escape_r  <= (magnitude_sq > ESCAPE_THRESHOLD);
+                    manifold_bounded_r <= (iteration_count >= MAX_ITERATIONS) && (magnitude_sq <= ESCAPE_THRESHOLD);
                     state <= S_IDLE;
                 end
                 
@@ -105,8 +115,8 @@ module ucf11_top_fractal_core #(
         end
     end
 
-    // Continuous assignment outputs mapping results directly back to pins
-    assign manifold_bounded = (iteration_count >= MAX_ITERATIONS) && (magnitude_sq <= ESCAPE_THRESHOLD);
-    assign manifold_escape = (magnitude_sq > ESCAPE_THRESHOLD);
+    // Output assignments drive from registered flags
+    assign manifold_bounded = manifold_bounded_r;
+    assign manifold_escape = manifold_escape_r;
 
 endmodule
